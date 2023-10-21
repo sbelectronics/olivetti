@@ -1,3 +1,4 @@
+```
 # format and prep floppy
 vf 0:
 ps 0:
@@ -28,3 +29,4 @@ D - loop on disk diags
 F - boot from floppy
 B - boot directly to basic
 S - boot directly to PCOS without init files
+```
