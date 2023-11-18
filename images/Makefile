@@ -45,14 +45,19 @@ DSKA0013_other.img:
 	dd if=DSKA0013_other.raw of=DSKA0013_other.img bs=1 skip=4096 oflag=append conv=notrunc
 
 DSKA0014_zork.img:
+	cp ~/projects/misc/z8kzork/build/olizork.cmd zork/
 	rm -f DSKA0014_zork.img DSKA0014_zork.raw
 	m20 DSKA0014_zork.raw new
-	m20 DSKA0014_zork.raw put ~/projects/misc/z8kzork/zork1.dat
-	m20 DSKA0014_zork.raw put ~/projects/misc/z8kzork/build/olizork.cmd
+	m20 DSKA0014_zork.raw put zork/zork.txt
+	m20 DSKA0014_zork.raw put zork/olizork.cmd	
+	m20 DSKA0014_zork.raw put zork/zork1.dat
+	m20 DSKA0014_zork.raw put zork/zork3.dat
 	dd if=FF_pcos_41a_LBA.img of=DSKA0014_zork.img bs=1 count=2048
 	dd if=DSKA0014_zork.raw of=DSKA0014_zork.img bs=1 skip=4096 oflag=append conv=notrunc
-	cp DSKA0014_zork.raw release/m20zork-padded.img
-	cp DSKA0014_zork.img release/m20zork-unpadded.img	
+	cp DSKA0014_zork.img release/m20zork-unpadded.img
+	dd if=release/m20zork-unpadded.img of=release/m20zork-padded.img bs=1 count=2048
+	dd if=/dev/zero of=release/m20zork-padded.img bs=1 count=2048 oflag=append conv=notrunc
+	dd if=release/m20zork-unpadded.img of=release/m20zork-padded.img bs=1 skip=2048 oflag=append conv=notrunc
 
 DSKA0015_forth.img:
 	rm -f DSKA0015_forth.img DSKA0015_forth.raw
@@ -60,8 +65,10 @@ DSKA0015_forth.img:
 	m20 DSKA0015_forth.raw put ../c/build/lbforth.cmd
 	dd if=FF_pcos_41a_LBA.img of=DSKA0015_forth.img bs=1 count=2048
 	dd if=DSKA0015_forth.raw of=DSKA0015_forth.img bs=1 skip=4096 oflag=append conv=notrunc
-	cp DSKA0015_forth.raw release/m20forth-padded.img
 	cp DSKA0015_forth.img release/m20forth-unpadded.img
+	dd if=release/m20forth-unpadded.img of=release/m20forth-padded.img bs=1 count=2048
+	dd if=/dev/zero of=release/m20forth-padded.img bs=1 count=2048 oflag=append conv=notrunc
+	dd if=release/m20forth-unpadded.img of=release/m20forth-padded.img bs=1 skip=2048 oflag=append conv=notrunc
 
 DSKA0016_tools.img:
 	rm -f DSKA0016_tools.img DSKA0016_tools.raw
@@ -75,7 +82,10 @@ DSKA0016_tools.img:
 	dd if=FF_pcos_41a_LBA.img of=DSKA0016_tools.img bs=1 count=2048
 	dd if=DSKA0016_tools.raw of=DSKA0016_tools.img bs=1 skip=4096 oflag=append conv=notrunc
 	cp DSKA0016_tools.raw release/m20tools-padded.img
-	cp DSKA0016_tools.img release/m20tools-unpadded.img	
+	cp DSKA0016_tools.img release/m20tools-unpadded.img
+	dd if=release/m20tools-unpadded.img of=release/m20tools-padded.img bs=1 count=2048
+	dd if=/dev/zero of=release/m20tools-padded.img bs=1 count=2048 oflag=append conv=notrunc
+	dd if=release/m20tools-unpadded.img of=release/m20tools-padded.img bs=1 skip=2048 oflag=append conv=notrunc	
 
 clean:
 	rm -f DSKA0003_pcos30e.img DSKA0004_olitest.img DSKA0010_spiele_demos.img DSKA0011_giochi_games.img DSKA0012_olidraw.img DSKA0013_other.img DSKA0005_pcos13.img DSKA0006_pcos20h.img DSKA0007_pcos40b.img DSKA0008_pcos40bu.img DSKA0014_zork.img DSKA0015_forth.img DSKA0016_tools.img release/*.img

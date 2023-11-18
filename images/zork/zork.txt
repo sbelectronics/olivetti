@@ -1,0 +1,16 @@
+Zork for Olivetti M20 PCOS.            
+
+To play Zork 1, a simple "olizork" command will do.
+
+To play Zork 3, use "olizork zork3.dat".
+
+Zork 2 wouldn't fit the way I'm loading things into memory.
+The story is just a little too long, and I'm assuming I can
+fit all of himem into a single 64K chunk. Oh well.
+
+If you are bulding these disks, you may obtain zork1.dat and
+zork2.dat from a CP/M, MSDOS, or other distribution of Zork
+that you already own. I do not redistribute the data files.
+Make sure to give them lower case filenames.
+
+Zork is copyright Intel, Activision, and/or Microsoft.
