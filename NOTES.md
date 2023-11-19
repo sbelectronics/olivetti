@@ -92,7 +92,7 @@ Ports
 |    863   | dualser 8253 out 1 register |
 |    865   | dualser 8253 out 2 register |
 
-High Speed Serial Idea
+# High Speed Serial Idea
 
 * Replace 8251 with TMP82C51AP-10
 
@@ -100,9 +100,29 @@ High Speed Serial Idea
 
 * Remove Jumper P2-N2
 
-* Connect 1.8432 MHz to N2 and P1 for 115200 baud. Use 921.6 KHz for 57600 or 614.4 KHz for 38400. I actuall have the 614.4 oscillators.
+* Connect 1.8432 MHz to N2 and P1 for 115200 baud. Use 921.6 KHz for 57600 or 614.4 KHz for 38400. I actually have the 614.4 oscillators.
 
-Dual Serial Board Notes
+* 8251 requirement is CLK set to at least 30x baud rate. The clk is 2 MHz, so would have expected this to work up to 57,600 baud.
+
+* results
+  
+  | baud rate | TxC, RxC clocks              | result |
+  | -------   | ---------------------------- | ------ |
+  | 115,200   | 1.8432 MHz osc.              | transmit fine, but receive unreliable |
+  | 57,600    | 1.8432 MHz osc divided by 2  | transmit fine, but receive unreliable |
+  | 38,400    | 4.9152 MHz osc divided by 8  | transmit fine, but receive unreliable |
+  | 28,800    | 1.8342 Mhz osc divided by 4  | works, receives at 1042 bytes per second |
+  | 19,200    | 4.9152 MHz osc divided by 16 | works, receives at 1042 bytes per second |
+  | 9,600     | 4.9152 MHz osc divided by 32 | works, receives at 875 bytes per second |
+  
+* conclusion 1 - there's no point in going above 19,200 baud as we max out somewhere around 12,000 baud. This is as fast
+  as xmodem can pull data out of the ring buffer. The ring buffer can probably burst up faster than that. Optimizing
+  the xmodem receiver code might be able to help.
+
+* note - we should have been able to sustain up to 57,600 baud without errors but could not. Maybe this is due to imperfections in
+  in the wiring. I put the crystal and divider in a solderless breadboard and had relatively long jumper wires.
+
+# Dual Serial Board Notes
 
 * See port numbers above
 
