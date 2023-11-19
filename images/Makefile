@@ -76,9 +76,9 @@ DSKA0016_tools.img:
 	m20 DSKA0016_tools.raw put ../c/build/xmodemr.cmd
 	m20 DSKA0016_tools.raw put ../c/build/xmodems.cmd
 	m20 DSKA0016_tools.raw put ../c/build/ymodemr.cmd
-	m20 DSKA0016_tools.raw put ../c/build/xmodem.txt
-	m20 DSKA0013_other.raw put ../basic/stty.bas
-	m20 DSKA0013_other.raw put ../basic/stty96.bas
+	m20 DSKA0016_tools.raw put ../c/xmodem.txt
+	m20 DSKA0016_tools.raw put ../basic/stty.bas
+	m20 DSKA0016_tools.raw put ../basic/stty96.bas
 	dd if=FF_pcos_41a_LBA.img of=DSKA0016_tools.img bs=1 count=2048
 	dd if=DSKA0016_tools.raw of=DSKA0016_tools.img bs=1 skip=4096 oflag=append conv=notrunc
 	cp DSKA0016_tools.raw release/m20tools-padded.img
