@@ -76,6 +76,10 @@ DSKA0016_tools.img:
 	m20 DSKA0016_tools.raw put ../c/build/xmodemr.cmd
 	m20 DSKA0016_tools.raw put ../c/build/xmodems.cmd
 	m20 DSKA0016_tools.raw put ../c/build/ymodemr.cmd
+	m20 DSKA0016_tools.raw put ../c/build/poutb.cmd
+	m20 DSKA0016_tools.raw put ../c/build/pinb.cmd
+	m20 DSKA0016_tools.raw put ../c/build/maze.cmd
+	m20 DSKA0016_tools.raw put ../c/build/brutprim.cmd
 	m20 DSKA0016_tools.raw put ../c/xmodem.txt
 	m20 DSKA0016_tools.raw put ../basic/stty.bas
 	m20 DSKA0016_tools.raw put ../basic/stty96.bas

@@ -1,4 +1,4 @@
-all: build/hello.cmd build/lbforth.cmd build/xmodemr.cmd build/xmodems.cmd build/maltest.cmd build/ymodemr.cmd build/maze.cmd build/brutprim.cmd
+all: build/hello.cmd build/lbforth.cmd build/xmodemr.cmd build/xmodems.cmd build/maltest.cmd build/ymodemr.cmd build/maze.cmd build/brutprim.cmd build/pinb.cmd build/poutb.cmd
 
 build/hello.cmd: hello.c
 	z8k-pcos-gcc -o build/hello.cmd hello.c
@@ -22,7 +22,13 @@ build/maze.cmd: maze.c
 	z8k-pcos-gcc -o build/maze.cmd maze.c -Wl,-multi,-map,build/maze.map -O2
 
 build/brutprim.cmd: brutprim.c
-	z8k-pcos-gcc -o build/brutprim.cmd brutprim.c -Wl,-multi,-map,build/brutprim.map -O2	
+	z8k-pcos-gcc -o build/brutprim.cmd brutprim.c -Wl,-multi,-map,build/brutprim.map -O2
+
+build/pinb.cmd: pinb.c
+	z8k-pcos-gcc -o build/pinb.cmd pinb.c -Wl,-multi,-map,build/pinb.map -O2
+
+build/poutb.cmd: poutb.c
+	z8k-pcos-gcc -o build/poutb.cmd poutb.c -Wl,-multi,-map,build/poutb.map -O2	
 
 clean:
 	rm -f build/*.cmd
