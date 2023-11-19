@@ -1,4 +1,4 @@
-all: build/hello.cmd build/lbforth.cmd build/xmodemr.cmd build/xmodems.cmd build/maltest.cmd build/ymodemr.cmd
+all: build/hello.cmd build/lbforth.cmd build/xmodemr.cmd build/xmodems.cmd build/maltest.cmd build/ymodemr.cmd build/maze.cmd
 
 build/hello.cmd: hello.c
 	z8k-pcos-gcc -o build/hello.cmd hello.c
@@ -17,6 +17,9 @@ build/ymodemr.cmd: xmodemr.c crc16.c
 
 build/xmodems.cmd: xmodems.c crc16.c
 	z8k-pcos-gcc -o build/xmodems.cmd xmodems.c crc16.c -Wl,-multi,-map,build/xmodems.map -O2
+
+build/maze.cmd: xmodems.c crc16.c
+	z8k-pcos-gcc -o build/maze.cmd maze.c -Wl,-multi,-map,build/maze.map -O2	
 
 clean:
 	rm -f build/*.cmd
