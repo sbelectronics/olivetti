@@ -50,7 +50,7 @@ typedef unsigned char byte;
 #define STACK_POSITION (STATE_POSITION + CELL_SIZE)
 #define RSTACK_POSITION (STACK_POSITION + STACK_SIZE * CELL_SIZE)
 #define HERE_START (RSTACK_POSITION + RSTACK_SIZE * CELL_SIZE)
-#define MAX_BUILTIN_ID 72
+#define MAX_BUILTIN_ID 74
 
 /* Flags and masks for the dictionary */
 #define FLAG_IMMEDIATE 0x80
@@ -991,6 +991,31 @@ BUILTIN(71, "TELL", cwtell, 0)
     }
 }
 
+BUILTIN(72, "OUT", outp, 0)
+{
+    cell portAddr = pop();
+    cell value = pop() & 0x0FF;
+
+    __asm__ volatile (
+        "push @sp,r7   \n\t"
+        "ld r7,%H1     \n\t"
+        "outb @%H0,rl7 \n\t"
+        "pop r7,@sp    \n\t": : "r" ((unsigned int)portAddr),
+                                "r" ((unsigned int)value));
+}
+
+BUILTIN(73, "IN", inp, 0)
+{
+    cell portAddr = pop();
+    unsigned char value;
+
+    __asm__ volatile (
+        "inb %Q0,@%H1 \n\t" : "=r" (value)
+                            : "r" ((unsigned int)portAddr));
+
+    dpush(value);
+}
+
 /*******************************************************************************
 *
 * Loose ends
@@ -1157,6 +1182,8 @@ int main()
     ADD_BUILTIN(dover);
     ADD_BUILTIN(drot);
     ADD_BUILTIN(cwtell);
+    ADD_BUILTIN(inp);
+    ADD_BUILTIN(outp);
 
     maxBuiltinAddress = (*here) - 1;
 
