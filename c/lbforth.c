@@ -20,6 +20,11 @@
 * used are getchar, putchar and the EOF value. */
 #include <stdio.h>
 
+#ifdef OLIVETTI
+#include <sys/pcos.h>
+#include "myread.h"
+#endif
+
 /* Base cell data types. Use short/long on most systems for 16 bit cells. */
 /* Experiment here if necessary. */
 #define CELL_BASE_TYPE int
@@ -217,15 +222,35 @@ const char *initScript =
 * to e.g. output data on a microcontroller via a serial interface. */
 void putkey(char c)
 {
+#ifdef OLIVETTI
+    if (c==13) {
+        _pcos_putbyte(DID_CONSOLE,10);
+    }
+    _pcos_putbyte(DID_CONSOLE,c);
+    if (c==10) {
+       _pcos_putbyte(DID_CONSOLE,13); 
+    }
+#else
     putchar(c);
+#endif
 }
 
 /* The primary data input function. This is where you place the code to e.g.
 * read from a serial line. */
 int llkey()
 {
+#ifdef OLIVETTI
+    char ch;
+    int i;
+
+    if (*initscript_pos) return *(initscript_pos++);
+
+    _myread(&ch,1);  /* TODO: Check error return here? */
+    return ch;
+#else
     if (*initscript_pos) return *(initscript_pos++);
     return getchar();
+#endif
 }
 
 /* Anything waiting in the keyboard buffer? */
@@ -996,12 +1021,14 @@ BUILTIN(72, "OUT", outp, 0)
     cell portAddr = pop();
     cell value = pop() & 0x0FF;
 
+#ifdef OLIVETTI
     __asm__ volatile (
         "push @sp,r7   \n\t"
         "ld r7,%H1     \n\t"
         "outb @%H0,rl7 \n\t"
         "pop r7,@sp    \n\t": : "r" ((unsigned int)portAddr),
                                 "r" ((unsigned int)value));
+#endif
 }
 
 BUILTIN(73, "IN", inp, 0)
@@ -1009,9 +1036,11 @@ BUILTIN(73, "IN", inp, 0)
     cell portAddr = pop();
     unsigned char value;
 
+#ifdef OLIVETTI
     __asm__ volatile (
         "inb %Q0,@%H1 \n\t" : "=r" (value)
                             : "r" ((unsigned int)portAddr));
+#endif
 
     dpush(value);
 }
@@ -1082,6 +1111,8 @@ void addBuiltin(cell code, const char* name, const byte flags, builtin f)
     push(doExit_id);
     comma();
 }
+
+char inbuf[1024];
 
 /* Program setup and jump to outer interpreter */
 int main()
