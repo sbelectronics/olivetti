@@ -32,7 +32,7 @@
 
 /* Basic memory configuration */
 #define MEM_SIZE 32768 /* main memory size in bytes */
-#define STACK_SIZE 192 /* cells reserved for the stack */
+#define STACK_SIZE 256 /* cells reserved for the stack */
 #define RSTACK_SIZE 64 /* cells reserved for the return stack */
 #define INPUT_LINE_SIZE 32 /* bytes reserved for the WORD buffer */
 
@@ -215,6 +215,12 @@ const char *initScript =
     "' ' OF \"'\" EMIT SPACE CELL+ DUP @ CFA> ID. SPACE ENDOF\n"
     "' EXIT OF 2DUP CELL+ <> IF .\" EXIT \" THEN ENDOF\n"
     "DUP CFA> ID. SPACE ENDCASE CELL+ REPEAT ';' EMIT CR 2DROP ;\n";
+
+/*
+: VALUE WORD CREATE DOCOL , ' LIT , , ' EXIT , ;
+: TO IMMEDIATE WORD FIND >DFA CELL+ STATE @ IF ' LIT , , ' ! , ELSE ! THEN ;
+: +TO IMMEDIATE WORD FIND >DFA CELL+ STATE @ IF ' LIT , , ' +! , ELSE +! THEN ;
+*/
 
 /******************************************************************************/
 
@@ -1042,7 +1048,7 @@ BUILTIN(73, "IN", inp, 0)
                             : "r" ((unsigned int)portAddr));
 #endif
 
-    dpush(value);
+    push(value);
 }
 
 /*******************************************************************************

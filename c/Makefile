@@ -1,4 +1,6 @@
-all: build/hello.cmd build/lbforth.cmd build/xmodemr.cmd build/xmodems.cmd build/maltest.cmd build/ymodemr.cmd build/maze.cmd build/brutprim.cmd build/pinb.cmd build/poutb.cmd
+all: build/hello.cmd build/lbforth.cmd build/xmodemr.cmd build/xmodems.cmd build/maltest.cmd build/ymodemr.cmd build/maze.cmd build/brutprim.cmd build/pinb.cmd build/poutb.cmd \
+     build/sum.cmd \
+     vdip
 
 build/hello.cmd: hello.c
 	z8k-pcos-gcc -o build/hello.cmd hello.c
@@ -28,7 +30,14 @@ build/pinb.cmd: pinb.c
 	z8k-pcos-gcc -o build/pinb.cmd pinb.c -Wl,-multi,-map,build/pinb.map -O2
 
 build/poutb.cmd: poutb.c
-	z8k-pcos-gcc -o build/poutb.cmd poutb.c -Wl,-multi,-map,build/poutb.map -O2	
+	z8k-pcos-gcc -o build/poutb.cmd poutb.c -Wl,-multi,-map,build/poutb.map -O2
+
+build/sum.cmd: sum.c
+	z8k-pcos-gcc -o build/sum.cmd sum.c -Wl,-multi,-map,build/sum.map -O2	
+
+.PHONY: vdip
+vdip:
+	cd vdip && make
 
 clean:
 	rm -f build/*.cmd
