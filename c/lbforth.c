@@ -56,7 +56,7 @@ typedef unsigned char byte;
 #define STACK_POSITION (STATE_POSITION + CELL_SIZE)
 #define RSTACK_POSITION (STACK_POSITION + STACK_SIZE * CELL_SIZE)
 #define HERE_START (RSTACK_POSITION + RSTACK_SIZE * CELL_SIZE)
-#define MAX_BUILTIN_ID 75
+#define MAX_BUILTIN_ID 81
 
 /* Flags and masks for the dictionary */
 #define FLAG_IMMEDIATE 0x80
@@ -219,9 +219,10 @@ const char *initScript =
     "  ' ' OF \"'\" EMIT SPACE CELL+ DUP @ CFA> ID. SPACE ENDOF\n"
     "  ' EXIT OF 2DUP CELL+ <> IF .\" EXIT \" THEN ENDOF\n"
     "  DUP CFA> ID. SPACE ENDCASE CELL+ REPEAT ';' EMIT CR 2DROP ;\n"
-    ": VALUE WORD CREATE DOCOL , ' LIT , , ' EXIT , ;\n"
+    ": VALUE CREATE DOCOL , ' LIT , , ' EXIT , ;\n"
     ": TO IMMEDIATE WORD FIND >DFA CELL+ STATE @ IF ' LIT , , ' ! , ELSE ! THEN ;\n"
-    ": +TO IMMEDIATE WORD FIND >DFA CELL+ STATE @ IF ' LIT , , ' +! , ELSE +! THEN ;\n";
+    ": +TO IMMEDIATE WORD FIND >DFA CELL+ STATE @ IF ' LIT , , ' +! , ELSE +! THEN ;\n"
+    ": ['] IMMEDIATE ' LIT , ;\n";
 /*
 
 */
@@ -1087,6 +1088,120 @@ BUILTIN(74, "READFILE", readfile, 0)
     memory[addr+length] = save;
 }
 
+BUILTIN(75, "SHOWFILE", showfile, 0)
+{
+    char *fn;
+    FILE *f;
+    char save;
+    int bread;
+    cell length = pop();
+    cell addr = pop();
+
+    fn = &memory[addr];
+
+    /* make sure the filename is null-terminated */
+    save = memory[addr+length];
+    memory[addr+length] = '\0';
+
+    f = fopen(fn, "rt");
+
+    if (f == NULL) {
+        fprintf(stderr, "failed to open file %s\n", fn);
+        memory[addr+length] = save;
+        return;
+    }
+
+    memory[addr+length] = save;
+
+    while (1) {
+        int c = fgetc(f);
+        if (c==-1) {
+            fclose(f);
+            return;
+        }
+        putkey(c);
+    }
+}
+
+BUILTIN(76, "SHOWDIR", showdir, 0)
+{
+#ifdef OLIVETTI
+    char name_buf[33];
+    int length;
+    int search_mode;
+    int drive;
+    int count;
+    char *file_pointer;
+    int retval;
+    int i;
+
+    search_mode = 1;
+    drive = -1;
+    count = 0;
+    while (1) {
+        length = 0;
+        file_pointer = name_buf;
+        retval = _pcos_search(drive, search_mode, &length,
+                            &file_pointer, NULL);
+        if (retval != PCOS_ERR_OK) break;
+        search_mode = 0;   /* from now on search from the
+                            last file found */
+        name_buf[length] = 0;  /* zero terminate name */
+        tell(name_buf);
+        for(i=length; i<16; i++) {
+            putkey(' ');
+        }
+        count+=1;
+        if ((count%4)==0) {
+            putkey('\n');
+        }
+    }
+    if ((count%4)!=0) {
+        putkey('\n');
+    }
+#endif
+}
+
+BUILTIN(77, "ERASE", erase, 0)
+{
+    cell length = pop();
+    cell addr = pop();
+    cell i;
+
+    for (i=0; i<length; i++) {
+        memory[addr] = 0;
+        addr++;
+    }
+}
+
+BUILTIN(78, "EXECUTE", execute, 0)
+{
+    cell addr = pop();
+
+    lastIp = next;
+    next = addr;
+}
+
+BUILTIN(79, "CHAR", charlit, 0)
+{
+    word();
+    push(memory[1]);
+}
+
+BUILTIN(80, "AT-XY", atxy, 0)
+{
+    cell y = pop()+1;
+    cell x = pop()+1;
+
+#ifdef OLIVETTI
+    _pcos_chgcur0(x,y);
+#else
+    printf("%c[%d;%df",0x1B,y,x);
+#endif
+}
+  
+
+
 /*******************************************************************************
 *
 * Loose ends
@@ -1260,6 +1375,12 @@ int main()
     ADD_BUILTIN(inport);
     ADD_BUILTIN(outport);
     ADD_BUILTIN(readfile);
+    ADD_BUILTIN(showfile);
+    ADD_BUILTIN(showdir);
+    ADD_BUILTIN(erase);
+    ADD_BUILTIN(execute);
+    ADD_BUILTIN(charlit);
+    ADD_BUILTIN(atxy);
 
     maxBuiltinAddress = (*here) - 1;
 
