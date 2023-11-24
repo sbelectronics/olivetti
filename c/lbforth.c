@@ -23,6 +23,7 @@
 #ifdef OLIVETTI
 #include <sys/pcos.h>
 #include "myread.h"
+#include "oliport.h"
 #endif
 
 /* Base cell data types. Use short/long on most systems for 16 bit cells. */
@@ -55,7 +56,7 @@ typedef unsigned char byte;
 #define STACK_POSITION (STATE_POSITION + CELL_SIZE)
 #define RSTACK_POSITION (STACK_POSITION + STACK_SIZE * CELL_SIZE)
 #define HERE_START (RSTACK_POSITION + RSTACK_SIZE * CELL_SIZE)
-#define MAX_BUILTIN_ID 74
+#define MAX_BUILTIN_ID 75
 
 /* Flags and masks for the dictionary */
 #define FLAG_IMMEDIATE 0x80
@@ -101,8 +102,16 @@ builtin builtins[MAX_BUILTIN_ID] = { 0 };
 /* This is our initialization script containing all the words we define in
 * Forth for convenience. Focus is on simplicity, not speed. Partly copied from
 * Jonesforth (see top of file). */
+FILE *f_reading;
 char *initscript_pos;
 const char *initScript =
+    ": 's' 115 ;\n"
+    ": '\"' 34 ;\n"
+    ": ':' 58 ;\n"
+    ": ';' 59 ;\n"
+    ": \"'\" 39 ;\n"
+    ": CELL+ CELL + ;\n"
+    ": CELL- CELL - ;\n"
     ": DECIMAL 10 BASE ! ;\n"
     ": HEX 16 BASE ! ;\n"
     ": OCTAL 8 BASE ! ;\n"
@@ -174,7 +183,9 @@ const char *initScript =
     ": .S DSP@ BEGIN DUP S0@ > WHILE DUP ? CELL - REPEAT DROP ;\n"
     ": TYPE 0 DO DUP C@ EMIT 1 + LOOP DROP ;\n"
     ": ALIGN BEGIN HERE @ CELL MOD WHILE 0 C, REPEAT ;\n"
-    ": s\" ' LITSTRING , HERE @ 0 , BEGIN KEY DUP 34 <> WHILE C, REPEAT DROP DUP HERE @ SWAP - CELL - SWAP ! ALIGN ; IMMEDIATE\n"
+    ": xs\" ' LITSTRING , HERE @ 0 , BEGIN KEY DUP 34 <> WHILE C, REPEAT DROP DUP HERE @ SWAP - CELL - SWAP ! ALIGN ; IMMEDIATE\n"
+    ": s\" IMMEDIATE STATE @ IF ' LITSTRING , HERE @ 0 , BEGIN KEY DUP '\"' <> WHILE C, REPEAT DROP DUP HERE @ SWAP - CELL- SWAP\n"
+    "       ! ALIGN ELSE HERE @ BEGIN KEY DUP '\"' <> WHILE OVER C! 1+ REPEAT DROP HERE @ - HERE @ SWAP THEN ;\n"
     ": .\" [COMPILE] s\" ' TYPE , ; IMMEDIATE\n"
     ": ( BEGIN KEY [CHAR] ) = UNTIL ; IMMEDIATE\n"
     ": COUNT DUP 1+ SWAP C@ ;\n"
@@ -183,8 +194,6 @@ const char *initScript =
     ": D0= OR 0= ;\n"
     ": DMIN 2OVER 2OVER D< IF 2DROP ELSE 2NIP THEN ;\n"
     ": DMAX 2OVER 2OVER D> IF 2DROP ELSE 2NIP THEN ;\n"
-    ": CELL+ CELL + ;\n"
-    ": CELL- CELL - ;\n"
     ": F_HIDDEN 64 ;\n"
     ": F_IMMEDIATE 128 ;\n"
     ": F_LENMASK 31 ;\n"
@@ -197,29 +206,24 @@ const char *initScript =
     ": ENDOF IMMEDIATE [COMPILE] ELSE ;\n"
     ": ENDCASE IMMEDIATE ' DROP , BEGIN ?DUP WHILE [COMPILE] THEN REPEAT ;\n"
     ": PICK 1+ CELL * DSP@ SWAP - @ ;\n"
-    ": 's' 115 ;\n"
-    ": '\"' 34 ;\n"
-    ": ':' 58 ;\n"
-    ": ';' 59 ;\n"
-    ": \"'\" 39 ;\n"
     ": >DFA >CFA CELL+ ;\n"
     ": CFA> LATEST @ BEGIN ?DUP WHILE 2DUP >CFA SWAP = IF NIP EXIT THEN @ REPEAT DROP 0 ;\n"
     ": ALIGNED 3 + 3 NOT AND ;\n"
     ": LITERAL IMMEDIATE ' LIT , , ;\n"
     ": SEE WORD FIND HERE @ LATEST @ BEGIN 2 PICK OVER <> WHILE NIP DUP @ REPEAT DROP SWAP ':' EMIT SPACE DUP ID. SPACE\n"
-    "DUP ?IMMEDIATE IF .\" IMMEDIATE \" THEN >DFA BEGIN 2DUP > WHILE DUP @ CASE \n"
-    "' LIT OF CELL+ DUP @ . ENDOF\n"
-    "' LITSTRING OF 's' EMIT '\"' EMIT SPACE CELL+ DUP @ SWAP CELL+ SWAP 2DUP TELL '\"' EMIT SPACE + ALIGNED CELL- ENDOF\n"
-    "' 0BRANCH OF .\" 0BRANCH ( \" CELL+ DUP @ . .\" ) \" ENDOF\n"
-    "' BRANCH OF .\" BRANCH ( \" CELL+ DUP @ . .\" ) \" ENDOF\n"
-    "' ' OF \"'\" EMIT SPACE CELL+ DUP @ CFA> ID. SPACE ENDOF\n"
-    "' EXIT OF 2DUP CELL+ <> IF .\" EXIT \" THEN ENDOF\n"
-    "DUP CFA> ID. SPACE ENDCASE CELL+ REPEAT ';' EMIT CR 2DROP ;\n";
-
+    "  DUP ?IMMEDIATE IF .\" IMMEDIATE \" THEN >DFA BEGIN 2DUP > WHILE DUP @ CASE \n"
+    "  ' LIT OF CELL+ DUP @ . ENDOF\n"
+    "  ' LITSTRING OF 's' EMIT '\"' EMIT SPACE CELL+ DUP @ SWAP CELL+ SWAP 2DUP TELL '\"' EMIT SPACE + ALIGNED CELL- ENDOF\n"
+    "  ' 0BRANCH OF .\" 0BRANCH ( \" CELL+ DUP @ . .\" ) \" ENDOF\n"
+    "  ' BRANCH OF .\" BRANCH ( \" CELL+ DUP @ . .\" ) \" ENDOF\n"
+    "  ' ' OF \"'\" EMIT SPACE CELL+ DUP @ CFA> ID. SPACE ENDOF\n"
+    "  ' EXIT OF 2DUP CELL+ <> IF .\" EXIT \" THEN ENDOF\n"
+    "  DUP CFA> ID. SPACE ENDCASE CELL+ REPEAT ';' EMIT CR 2DROP ;\n"
+    ": VALUE WORD CREATE DOCOL , ' LIT , , ' EXIT , ;\n"
+    ": TO IMMEDIATE WORD FIND >DFA CELL+ STATE @ IF ' LIT , , ' ! , ELSE ! THEN ;\n"
+    ": +TO IMMEDIATE WORD FIND >DFA CELL+ STATE @ IF ' LIT , , ' +! , ELSE +! THEN ;\n";
 /*
-: VALUE WORD CREATE DOCOL , ' LIT , , ' EXIT , ;
-: TO IMMEDIATE WORD FIND >DFA CELL+ STATE @ IF ' LIT , , ' ! , ELSE ! THEN ;
-: +TO IMMEDIATE WORD FIND >DFA CELL+ STATE @ IF ' LIT , , ' +! , ELSE +! THEN ;
+
 */
 
 /******************************************************************************/
@@ -248,13 +252,24 @@ int llkey()
 #ifdef OLIVETTI
     char ch;
     int i;
+#endif
 
     if (*initscript_pos) return *(initscript_pos++);
+    if (f_reading != NULL) {
+        int ch = fgetc(f_reading);
+        if (ch==EOF) {
+            fclose(f_reading);
+            f_reading = NULL;
+        } else {
+            putkey(ch);
+            return ch;
+        }
+    }
 
+#ifdef OLIVETTI
     _myread(&ch,1);  /* TODO: Check error return here? */
     return ch;
 #else
-    if (*initscript_pos) return *(initscript_pos++);
     return getchar();
 #endif
 }
@@ -1022,33 +1037,54 @@ BUILTIN(71, "TELL", cwtell, 0)
     }
 }
 
-BUILTIN(72, "OUT", outp, 0)
+BUILTIN(72, "OUT", outport, 0)
 {
     cell portAddr = pop();
     cell value = pop() & 0x0FF;
 
 #ifdef OLIVETTI
-    __asm__ volatile (
-        "push @sp,r7   \n\t"
-        "ld r7,%H1     \n\t"
-        "outb @%H0,rl7 \n\t"
-        "pop r7,@sp    \n\t": : "r" ((unsigned int)portAddr),
-                                "r" ((unsigned int)value));
+    outp(portAddr, value);
 #endif
 }
 
-BUILTIN(73, "IN", inp, 0)
+BUILTIN(73, "IN", inport, 0)
 {
     cell portAddr = pop();
     unsigned char value;
 
 #ifdef OLIVETTI
-    __asm__ volatile (
-        "inb %Q0,@%H1 \n\t" : "=r" (value)
-                            : "r" ((unsigned int)portAddr));
+    value = inp(portAddr);
 #endif
 
     push(value);
+}
+
+BUILTIN(74, "READFILE", readfile, 0)
+{
+    char *fn;
+    char save;
+    int bread;
+    cell length = pop();
+    cell addr = pop();
+
+    fn = &memory[addr];
+
+    /* make sure the filename is null-terminated */
+    save = memory[addr+length];
+    memory[addr+length] = '\0';
+
+    if (f_reading!=NULL) {
+        fclose(f_reading);
+        f_reading = NULL;
+    }
+
+    f_reading = fopen(fn, "rt");
+
+    if (f_reading == NULL) {
+        fprintf(stderr, "failed to open file %s\n", fn);
+    }
+
+    memory[addr+length] = save;
 }
 
 /*******************************************************************************
@@ -1146,6 +1182,8 @@ int main()
     *latest = 0;
     *here = HERE_START;
 
+    f_reading = NULL;
+
     ADD_BUILTIN(docol);
     ADD_BUILTIN(doCellSize);
     ADD_BUILTIN(memRead);
@@ -1219,8 +1257,9 @@ int main()
     ADD_BUILTIN(dover);
     ADD_BUILTIN(drot);
     ADD_BUILTIN(cwtell);
-    ADD_BUILTIN(inp);
-    ADD_BUILTIN(outp);
+    ADD_BUILTIN(inport);
+    ADD_BUILTIN(outport);
+    ADD_BUILTIN(readfile);
 
     maxBuiltinAddress = (*here) - 1;
 

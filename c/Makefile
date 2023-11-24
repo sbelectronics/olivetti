@@ -8,8 +8,8 @@ build/hello.cmd: hello.c
 build/maltest.cmd: maltest.c
 	z8k-pcos-gcc -o build/maltest.cmd maltest.c -Wl,-multi,-map,build/maltest.map -O2
 
-build/lbforth.cmd: lbforth.c
-	z8k-pcos-gcc -o build/lbforth.cmd lbforth.c myread.c -Wl,-multi,-map,build/lbforth.map -O2 -D OLIVETTI
+build/lbforth.cmd: lbforth.c oliport.c myread.c
+	z8k-pcos-gcc -o build/lbforth.cmd lbforth.c myread.c oliport.c -Wl,-multi,-map,build/lbforth.map -O2 -D OLIVETTI
 
 build/xmodemr.cmd: xmodemr.c crc16.c
 	z8k-pcos-gcc -o build/xmodemr.cmd xmodemr.c crc16.c -Wl,-multi,-map,build/xmodemr.map -O2
