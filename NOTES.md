@@ -92,6 +92,23 @@ Ports
 |    863   | dualser 8253 out 1 register |
 |    865   | dualser 8253 out 2 register |
 
+# Hard-wiring DB9 serial port
+
+Connect directly to jumpers next to the serial connector.
+Be careful as there as merely soldered in jumper wires
+and could fall out if you heat them carelessly.
+
+| Jumper | Scott's Wire Color | DB9 | Signal |
+| ------ | ------------------ | --- | ------ |
+|   Y1   | Blue               |  2  |   RXD  |
+|   Y3   | Green              |  3  |   TXD  |
+|   Y9   | Orange             |  8  |   CTS  |
+|   Y11  | Yellow             |  7  |   RTS  |
+|   GND  | Black              |  5  |   GND  |
+
+For ground, any decent ground will do. I found a grounded
+pin on the configuration jumper block next to the 8251.
+
 # High Speed Serial Idea
 
 * Replace 8251 with TMP82C51AP-10
