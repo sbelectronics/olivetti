@@ -1,0 +1,42 @@
+Name addr;
+Partno G22V10#2;
+Revision;
+Date 09/1/2023;
+Designer Scott Baker;
+Company ;
+Location ;
+Assembly 8008 H8 CPU BOARD;
+Device G22V10;
+
+/* Inputs: */
+Pin 1  = A0;
+Pin 2  = A1;
+Pin 3  = A2;
+Pin 4  = A3;
+Pin 5  = A4;
+Pin 6  = A5;
+Pin 7  = A6;
+Pin 8  = A7;
+Pin 9  = A8;
+Pin 10 = NC1;
+Pin 11 = !OP1;
+Pin 13 = !OP2;
+
+/* Outputs:  */
+Pin 23 = !CS1;
+Pin 22 = A14;
+Pin 21 = A13;
+Pin 20 = A12;
+Pin 19 = A11;
+Pin 18 = A10;
+Pin 17 = A9;
+Pin 16 = !CS0;
+Pin 15 = A15;
+Pin 14 = !CS2;
+
+FIELD ADDR = [A15..A0];
+
+$define ADDR_SPEECH 41
+
+CS0 = (ADDR:ADDR_SPEECH);
+

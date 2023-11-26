@@ -1,0 +1,40 @@
+name speech;
+device g16v8;
+partno x;
+date 1/1/1980;
+designer smbaker;
+company sbsoftware;
+revision 1;
+assembly x;
+location x;
+
+PIN 1 = !IOREQ;
+PIN 2 = !WORD;
+PIN 3 = !WR;
+PIN 4 = !DS;
+PIN 5 = !CS0;
+PIN 6 = !CS1;
+PIN 7 = NC1;
+PIN 8 = !LRQ;
+PIN 9 = AR;
+PIN 10 = GND;
+PIN 11 = !RESET;
+PIN 12 = D0;
+PIN 13 = D1;
+PIN 14 = NC2;
+PIN 15 = NC3;
+PIN 16 = !INT;
+PIN 17 = VLD;
+PIN 18 = STB;
+PIN 19 = !ALD;
+PIN 20 = VCC;
+
+VLD = !(CS0 & IOREQ & WR & DS);
+ALD = (CS0 & IOREQ & WR & DS);
+
+D0.OE = (CS0 & IOREQ & !WR & DS);
+D1.OE = (CS0 & IOREQ & !WR & DS);
+
+D0 = LRQ;
+D1 = 'b' 0; /* AR; */
+

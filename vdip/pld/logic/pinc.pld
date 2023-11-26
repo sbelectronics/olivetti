@@ -1,0 +1,53 @@
+name pinc;
+device g16v8;
+partno x;
+date 1/1/1980;
+designer smbaker;
+company sbsoftware;
+revision 1;
+assembly x;
+location x;
+
+PIN 1 = !IOREQ;
+PIN 2 = !WORD;
+PIN 3 = !WR;
+PIN 4 = !DS;
+PIN 5 = CS0;
+PIN 6 = CS1;
+PIN 7 = CS2;
+PIN 8 = NC1;
+PIN 9 = NC2;
+PIN 10 = GND;
+PIN 11 = !RESET;
+PIN 12 = D0;
+PIN 13 = D1;
+PIN 14 = INT;
+PIN 15 = !VDIP_STATUS;
+PIN 16 = !VDIP_RD2;
+PIN 17 = !VDIP_RD;
+PIN 18 = VDIP_WR2;  /* intentionally not inverted */
+PIN 19 = !VDIP_WR;
+PIN 20 = VCC;
+
+/* CS2..CS0
+ *
+ *   000  NOTHING
+ *   001  PINC_DATA
+ *   010  VINC_DATA
+ *   011  STATUS
+ *
+ * Note this bits are not inverted
+ */
+
+FIELD CS = [CS2..CS0];
+
+VDIP_WR = IOREQ & DS & WR & (CS:1);
+VDIP_RD = IOREQ & DS & !WR & (CS:1);
+
+VDIP_WR2 = IOREQ & DS & WR & (CS:2);
+VDIP_RD2 = IOREQ & DS & !WR & (CS:2);
+
+VDIP_STATUS = IOREQ & DS & !WR & (CS:3);
+
+
+
