@@ -20,10 +20,14 @@
 * used are getchar, putchar and the EOF value. */
 #include <stdio.h>
 
+#ifdef H8_80186
+#include <conio.h>
+#else
 #ifdef OLIVETTI
 #include <sys/pcos.h>
 #include "myread.h"
 #include "oliport.h"
+#endif
 #endif
 
 /* Base cell data types. Use short/long on most systems for 16 bit cells. */
@@ -1043,8 +1047,12 @@ BUILTIN(72, "OUT", outport, 0)
     cell portAddr = pop();
     cell value = pop() & 0x0FF;
 
+#ifdef H8_80186
+    outp(portAddr, value);
+#else
 #ifdef OLIVETTI
     outp(portAddr, value);
+#endif
 #endif
 }
 
@@ -1053,8 +1061,12 @@ BUILTIN(73, "IN", inport, 0)
     cell portAddr = pop();
     unsigned char value;
 
+#ifdef H8_80186
+    value = inp(portAddr);
+#else
 #ifdef OLIVETTI
     value = inp(portAddr);
+#endif
 #endif
 
     push(value);

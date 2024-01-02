@@ -48,11 +48,24 @@
 **
 ********************************************************/
 #include <stdio.h>
-#include <sys/pcos.h>
 #include "vutil.h"
 #include "vinc.h"
-#include "oliport.h"
 
+#ifdef H8_80186
+#include <string.h>
+#include <process.h>
+#include <conio.h>
+#else
+#ifdef OLIVETTI
+#include <sys/pcos.h>
+#include "oliport.h"
+#else
+// stuff
+#endif
+#endif
+
+#ifdef OLIVETTI
+/* this isn't used anywhere?? */
 unsigned int get_sec()
 {
   char buf[12];
@@ -60,9 +73,11 @@ unsigned int get_sec()
 
   return buf[7]-'0';
 }
+#endif
 
 void break_check()
 {
+#ifdef OLIVETTI
   int r;
   unsigned char b;
   unsigned char bs;
@@ -73,6 +88,7 @@ void break_check()
     fprintf(stderr,"CTRL-C\n");
     exit(-1);
   }
+#endif
 }
 
 
@@ -196,6 +212,7 @@ char c;
   }
   /* OK to transmit the character */
   outp(p_data,c);
+  return 0;
 }
 
 
@@ -298,6 +315,7 @@ int vpurge()
   do {
     c = in_vwait(1);
   } while (c != -1);
+  return 0;
 }
 
 /********************************************************
@@ -456,7 +474,9 @@ long *len;
       ;
     /* read file length as 4 hex values */
     gethexvals(c, 4, &flen.b[0]);
+#ifdef ENDIAN_FLIP
     endian_flip(&flen, 4);
+#endif
 
     /* return file size */
     *len = flen.l;
@@ -848,6 +868,7 @@ int vcdroot()
 {
   while(vcdup() == 0)
     ;
+  return 0;
 }
 
 /********************************************************

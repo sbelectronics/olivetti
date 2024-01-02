@@ -17,6 +17,22 @@ EXTERN char linebuff[128];      /* I/O line buffer */
 EXTERN int p_data;
 EXTERN int p_stat;
 
+#ifdef OLIVETTI
+#define ENDIAN_FLIP
+#endif
+
+#ifdef H8_80186
+
+/* FTDI VDIP bits */
+#define VTXE    0x04             /* TXE# when hi ok to write */
+#define VRXF    0x08             /* RXF# when hi data avail  */
+
+/* FTDI VDIP default ports */
+#define VDATA   0x4D9
+#define VSTAT   0x4DA
+
+#else
+
 #ifdef SECONDARY_VDIP
 
 /* FTDI VDIP bits */
@@ -37,6 +53,7 @@ EXTERN int p_stat;
 #define VDATA   0x45
 #define VSTAT   0x49
 
+#endif
 #endif
 
 /* standard VDIP command prompt */

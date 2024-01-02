@@ -146,3 +146,9 @@ pin on the configuration jumper block next to the 8251.
 * Just wire the baud rates to a jumper for simplicity?
 
 * Will need to connect an 8259 for the interrupts. 
+
+* Enabling serial ports
+
+  * imr bit 0 is always reset
+  * enable com1 resets IMR bit 1
+  * enable com2 resets IMR bit 3

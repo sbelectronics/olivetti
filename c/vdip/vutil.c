@@ -156,6 +156,7 @@ unsigned i;
   b[1] = (n < 10) ? '0'+n : 'A'+n-10;
   b[2] = '\0';
   strcat(s, b);
+  return 0;
 }
 
 /********************************************************
@@ -192,6 +193,8 @@ int len;
   /* pad the front with blanks */
   while (p != s)
     *--p = ' ';
+
+  return 0;
 }
 
 int param_to_i(s)
@@ -249,6 +252,8 @@ unsigned udate;
   yr = 1980 + ((udate >> 9) & 0x7f);
   
   printf("%2d/%02d/%02d", mo, dy, (yr % 100));
+
+  return 0;
 }
 
 /********************************************************
@@ -286,4 +291,6 @@ unsigned utime;
     am_pm = "AM";
   
   printf("%2d:%02d %s", hr, min, am_pm);
+
+  return 0;
 }

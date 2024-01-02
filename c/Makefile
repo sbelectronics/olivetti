@@ -2,6 +2,9 @@ all: build/hello.cmd build/lbforth.cmd build/xmodemr.cmd build/xmodems.cmd build
      build/sum.cmd build/conway.cmd \
      vdip
 
+h8-80186: build186/lbforth.com build186/sum.com build186/brutprim.com
+	cp build186/*.com /home/smbaker/projects/pi/h8/h8-80186/commands/
+
 build/hello.cmd: hello.c
 	z8k-pcos-gcc -o build/hello.cmd hello.c
 
@@ -37,6 +40,15 @@ build/sum.cmd: sum.c
 
 build/conway.cmd: conway.c
 	z8k-pcos-gcc -o build/conway.cmd conway.c -Wl,-multi,-map,build/conway.map -O2 -D OLIVETTI
+
+build186/lbforth.com: lbforth.c
+	WATCOM=/usr/bin/watcom INCLUDE=/usr/bin/watcom/h PATH=$PATH:/usr/bin/watcom/binl64 wcl -mt lbforth.c -dH8_80186 -fe=build186/lbforth.com
+
+build186/sum.com: sum.c
+	WATCOM=/usr/bin/watcom INCLUDE=/usr/bin/watcom/h PATH=$PATH:/usr/bin/watcom/binl64 wcl -mt sum.c -dH8_80186 -fe=build186/sum.com
+
+build186/brutprim.com: brutprim.c
+	WATCOM=/usr/bin/watcom INCLUDE=/usr/bin/watcom/h PATH=$PATH:/usr/bin/watcom/binl64 wcl -mt brutprim.c -dH8_80186 -fe=build186/brutprim.com
 
 .PHONY: vdip
 vdip:

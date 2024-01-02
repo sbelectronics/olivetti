@@ -1,0 +1,75 @@
+name dualser;
+Device G22V10;
+partno x;
+date 1/1/1980;
+designer smbaker;
+company sbsoftware;
+revision 1;
+assembly x;
+location x;
+
+PIN 1 = !IOREQ;
+PIN 2 = !WORD;
+PIN 3 = !WR;
+PIN 4 = !DS;
+PIN 5 = CS0;
+PIN 6 = CS1;
+PIN 7 = INT8259;
+PIN 8 = !RESET;
+PIN 9 = CS2;       /* requires wire added */
+PIN 10 = NC1;
+PIN 11 = NC2;
+PIN 12 = GND;
+PIN 13 = NC3;
+PIN 14 = !INTOUT;
+PIN 15 = !MODSTAT;
+PIN 16 = !BCS;
+PIN 17 = !IOW;
+PIN 18 = !IOR;
+PIN 19 = RESETH;
+PIN 20 = !CS8251B;
+PIN 21 = !CS8251A;
+PIN 22 = !CS8253;
+PIN 23 = !CS8259;
+PIN 24 = VCC;
+
+/* CS2..CS0
+ *
+ *   000  NOTHING
+ *   001  MS
+ *   010  8251A
+ *   011  8251B
+ *   100  8253
+ *   101  8259
+ *
+ * Note this bits are not inverted
+ */
+
+FIELD CS = [CS2..CS0];
+
+CSMODSTAT = (CS:1);
+CS8251A = (CS:2);
+CS8251B = (CS:3);
+CS8253 = (CS:4);
+CS8259 = (CS:5);
+
+/* Note: I moved the 8259 to the bus side of the data buffer,
+ *   as I was concerned the interrupt vector wasn't propagating
+ *   though. As such, BCS excludes the 8259.
+ */
+
+BCS = IOREQ & DS & ((CS:1) # (CS:2) # (CS:3) # (CS:4));
+
+MODSTAT = CSMODSTAT & IOREQ & DS & !WR;
+
+RESETH = RESET; /* simple inverter */
+
+/* The schematics show a 74LS04 being used. That's not open
+ * collector, so just do a straight inversion on the 
+ * interrupt rather than using INTOUT.OE
+ */y
+
+INTOUT = INT8259;
+
+IOW = IOREQ & DS & WR;
+IOR = IOREQ & DS & !WR;
