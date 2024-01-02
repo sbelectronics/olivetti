@@ -1,5 +1,5 @@
 name pinc;
-device g16v8;
+Device G22V10;
 partno x;
 date 1/1/1980;
 designer smbaker;
@@ -15,19 +15,23 @@ PIN 4 = !DS;
 PIN 5 = CS0;
 PIN 6 = CS1;
 PIN 7 = CS2;
-PIN 8 = NC1;
-PIN 9 = NC2;
-PIN 10 = GND;
-PIN 11 = !RESET;
-PIN 12 = D0;
-PIN 13 = D1;
-PIN 14 = INT;
-PIN 15 = !VDIP_STATUS;
-PIN 16 = !VDIP_RD2;
-PIN 17 = !VDIP_RD;
-PIN 18 = VDIP_WR2;  /* intentionally not inverted */
-PIN 19 = !VDIP_WR;
-PIN 20 = VCC;
+PIN 8 = !RESET;
+PIN 9 = NC1;
+PIN 10 = NC2;
+PIN 11 = NC3;
+PIN 12 = GND;
+PIN 13 = NC4;
+PIN 14 = !IDE_DBCS;
+PIN 15 = !IDE_CS1;
+PIN 16 = !IDE_CS0;
+PIN 17 = !IDE_IOR;
+PIN 18 = !IDE_IOW;
+PIN 19 = !VDIP_STATUS;
+PIN 20 = !VDIP_RD2;
+PIN 21 = !VDIP_RD;
+PIN 22 = VDIP_WR2;  /* intentionally not inverted */
+PIN 23 = !VDIP_WR;
+PIN 24 = VCC;
 
 /* CS2..CS0
  *
@@ -35,6 +39,7 @@ PIN 20 = VCC;
  *   001  PINC_DATA
  *   010  VINC_DATA
  *   011  STATUS
+ *   100  HDD
  *
  * Note this bits are not inverted
  */
@@ -48,6 +53,12 @@ VDIP_WR2 = IOREQ & DS & WR & (CS:2);
 VDIP_RD2 = IOREQ & DS & !WR & (CS:2);
 
 VDIP_STATUS = IOREQ & DS & !WR & (CS:3);
+
+IDE_CS0 = (CS:4);
+IDE_CS1 = 'b'0;
+IDE_IOW = IOREQ & DS & WR & (CS:4);
+IDE_IOR = IOREQ & DS & !WR & (CS:4);
+IDE_DBCS = IOREQ & DS & (CS:4);
 
 
 
