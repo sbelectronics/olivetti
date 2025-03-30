@@ -1,0 +1,51 @@
+name psg;
+device g16v8;
+partno x;
+date 1/1/1980;
+designer smbaker;
+company sbsoftware;
+revision 1;
+assembly x;
+location x;
+
+PIN 1 = !IOREQ;
+PIN 2 = !WORD;
+PIN 3 = !WR;
+PIN 4 = !DS;
+PIN 5 = !CS0;
+PIN 6 = !CS1;
+PIN 7 = !CS2;
+PIN 8 = !AS;
+PIN 9 = MC9;
+PIN 10 = GND;
+PIN 11 = !RESET;
+PIN 12 = D0;
+PIN 13 = D1;
+PIN 14 = NC14;
+PIN 15 = !AYRST;
+PIN 16 = !INT;
+PIN 17 = !CS;
+PIN 18 = BC1;
+PIN 19 = BDIR;
+PIN 20 = VCC;
+
+IO_WRT_REG = (CS0 & IOREQ & WR & DS);
+IO_WRT_VAL = (CS1 & IOREQ & WR & DS);
+IO_RD_VAL = (CS1 & IOREQ & !WR & DS);
+
+AYRST = RESET;
+
+/* this is used for the 74HCT245 buffer */
+CS = (CS0 & IOREQ & DS) # (CS1 & IOREQ & DS);
+
+/* control lines for the AY-3-8910 */
+BDIR = IO_WRT_REG # IO_WRT_VAL;
+BC1 = IO_WRT_REG # IO_RD_VAL;
+
+D0.OE = (CS0 & IOREQ & !WR & DS);
+D1.OE = (CS0 & IOREQ & !WR & DS);
+
+/* these aren't used for anything */
+D0 = 'b' 1;
+D1 = 'b' 0;
+
